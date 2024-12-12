@@ -8,6 +8,11 @@ DF_CARDS = pd.read_csv(CARDS_PATH, dtype=str).to_dict(orient="records")
 DF_CARDS_SECURITY = pd.read_csv(CARDS_SECURITY_PATH, dtype=str)
 
 class Hotel:
+    def id_exists(hotel_id):
+        found_hotel = DF.loc[DF["id"] == hotel_id]
+
+        return len(found_hotel) == 1
+
     def __init__(self, hotel_id):
         self.hotel_id = hotel_id
         self.name = DF.loc[DF["id"] == self.hotel_id, "name"].squeeze()
@@ -55,14 +60,29 @@ class SecureCreditCard(CreditCard):
 
 print(DF)
 
-hotel_id = input("Enter the id of the hotel: ")
+hotel_id_exists = False
+
+while not hotel_id_exists:
+    hotel_id = input("Enter the id of the hotel: ")
+    hotel_id_exists = Hotel.id_exists(hotel_id)
+
+    if not hotel_id_exists:
+        print("The hotel does not exist.")
+
+
 hotel = Hotel(hotel_id)
 
 if hotel.available():
-    creadit_card = SecureCreditCard(number="1234")
+    card_number = input("Enter your credit card number: ")
+    creadit_card = SecureCreditCard(number=card_number)
+    expiration = input("Enter your credit card expiration date (mm/dd): ")
+    holder_name = input("Enter your credit card holder name: ")
+    cvc_code = input("Enter your credit card cvc code: ")
 
-    if creadit_card.validate(expiration="12/26", holder="JOHN SMITH", cvc="123"):
-        if creadit_card.authenticate(given_password="mypass"):
+    if creadit_card.validate(expiration=expiration, holder=holder_name, cvc=cvc_code):
+        card_password = input("Enter your credit card authentication password: ")
+
+        if creadit_card.authenticate(given_password=card_password):
             hotel.book()
 
             name = input("Enter your name: ")
